@@ -152,9 +152,13 @@ class CloudfilesCdn {
 		$upload_path = trailingslashit($upload_dir['path']);
 		$sizes = $metadata['sizes'];
 
-		foreach ($sizes as $size => $size_data ) {
+		foreach ((array) $sizes as $size => $size_data ) {
 			$file = $size_data['file'];
-			$relative_file_path = self::get_blog_path() . 'files' . trailingslashit($upload_dir['subdir']) . $file;
+			if (is_multisite()) {
+				$relative_file_path = self::get_blog_path() . 'files' . trailingslashit($upload_dir['subdir']) . $file;
+			} else {
+				$relative_file_path = $file;
+			}
 			$file_type = wp_check_filetype($file);
 			if (self::get_setting('enable_debug'))
 				error_log("UPLOADING INTERMEDIATE SIZE: $relative_file_path");
@@ -209,18 +213,19 @@ class CloudfilesCdn {
 	 */
 	public function catch_wp_delete_file($file) {
 		//error_log("WP_DELETE_FILE: " . var_export($file, true));
-		// handle 'wp-content/blogs.dir/1/files/2010/07/653106995_338e53fb1412.jpg' files
-		if (strpos($file, 'blogs.dir')) {
-			$parts = explode('files/', $file);
-			$file = $parts[1];
+		if (is_multisite()) {
+			// not sure if this is needed or not...
+			if (strpos($file, 'blogs.dir')) {
+				$parts = explode('files/', $file);
+				$file = $parts[1];
+			}
+			$file = $this->get_blog_path() . 'files/' . $file;
 		}
-		$upload_dir = wp_upload_dir();
-		$relative_path = $this->get_blog_path() . 'files/' . $file;
 
-		// delete the file from the CDN if it is on there
+		// delete the file from the CDN
 		if (self::get_setting('enable_debug'))
-			error_log("DELETING FILE: $relative_path");
-		$this->delete_file(str_replace(ABSPATH, '', $relative_path));
+			error_log("DELETING FILE: $file");
+		$this->delete_file(str_replace(ABSPATH, '', $file));
 
 		return $file;
 	}
@@ -292,6 +297,9 @@ class CloudfilesCdn {
 		} catch (Exception $e) {
 			error_log(sprintf("[CloudfilesCdn] Error deleting file '%s' from Cloudfiles: %s", $file, $e->getMessage()));
 		}
+
+		if (self::get_setting('enable_debug'))
+			error_log("DELETED FILE: $file");
 
 		return true;
 	}
