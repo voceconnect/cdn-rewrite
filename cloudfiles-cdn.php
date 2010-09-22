@@ -373,7 +373,7 @@ class CDN_Rewrite {
 
 	public function __construct() {
 		$this->file_extensions = 'bmp|bz2|css|gif|ico|gz|jpg|jpeg|js|mp3|pdf|png|rar|rtf|swf|tar|tgz|txt|wav|zip';
-		$this->cdn_root_url = trailingslashit(CloudfilesCdn::get_setting('root_url'));
+		$this->cdn_root_url = untrailingslashit(CloudfilesCdn::get_setting('root_url'));
 	}
 
 	/**
