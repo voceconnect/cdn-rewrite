@@ -24,8 +24,8 @@ class CloudfilesCdn {
 
 		add_action('admin_menu', array($this, 'add_options_page'));
 
-		if (!self::get_setting('username') || !self::get_setting('api_key') || !self::get_setting('container') || !self::get_setting('root_url')) {
-			// these are the minimum required settings. should add an admin notice later...
+		if (!self::get_setting('username') || !self::get_setting('api_key') || !self::get_setting('container') || !self::get_setting('root_url') || !self::get_setting('file_extensions')) {
+			add_action('admin_notices', array('CloudfilesCdn', 'settings_warning'));
 			return;
 		}
 
@@ -35,6 +35,10 @@ class CloudfilesCdn {
 		add_filter('bp_core_avatar_cropstore', array('CloudfilesCdn', 'catch_bp_core_avatar_cropstore'));
 		add_action('bp_core_avatar_save', array('CloudfilesCdn', 'catch_bp_core_avatar_save'), 10, 2);
 
+	}
+
+	public static function settings_warning() {
+		echo "<div class='update-nag'>The Cloudfiles CDN plugin is missing some required settings.</div>";
 	}
 
 	/**
@@ -58,11 +62,11 @@ class CloudfilesCdn {
 		$settings = new Voce_Settings(self::$option_general, self::$option_general);
 
 		$section = $settings->add_section('api', 'Cloudfiles API Settings', $this->submenu_general);
-		$section->add_field('username', 'Username', 'field_input');
-		$section->add_field('api_key', 'API Key', 'field_input');
-		$section->add_field('container', 'Container Name', 'field_input', array('description' => 'The container to store files in.'));
-		$section->add_field('root_url', 'Root URL', 'field_input', array('description' => 'The root URL to the container without a trailing slash.'));
-		$section->add_field('file_extensions', 'File Extensions', 'field_input');
+		$section->add_field('username', 'Username (required)', 'field_input');
+		$section->add_field('api_key', 'API Key (required)', 'field_input');
+		$section->add_field('container', 'Container Name (required)', 'field_input', array('description' => 'The container to store files in.'));
+		$section->add_field('root_url', 'Root URL (required)', 'field_input', array('description' => 'The root URL to the container without a trailing slash.'));
+		$section->add_field('file_extensions', 'File Extensions (required)', 'field_input');
 		$section->add_field('enable_debug', 'Enable Debugging?', 'field_checkbox', array('description' => 'Enable error_log() to log upload/delete actions.'));
 
 	}
