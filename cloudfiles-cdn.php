@@ -157,7 +157,8 @@ class CloudfilesCdn {
 			if (is_multisite()) {
 				$relative_file_path = self::get_blog_path() . 'files' . trailingslashit($upload_dir['subdir']) . $file;
 			} else {
-				$relative_file_path = $file;
+				$upload_dir = wp_upload_dir();
+				$relative_file_path = str_replace(ABSPATH, '', $upload_dir['basedir']) . trailingslashit($upload_dir['subdir']) . $file;
 			}
 			$file_type = wp_check_filetype($file);
 			if (self::get_setting('enable_debug'))
