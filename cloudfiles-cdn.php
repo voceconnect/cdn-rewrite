@@ -10,9 +10,22 @@ Author URI: http://voceconnect.com/
 
 class CloudfilesCdn {
 
+	var $submenu_general;
+
+	var $option_group = 'cloudfiles_cdn';
+	static $option_general = 'cloudfiles_cdn_general';
+
 	function __construct() {
-		if (!defined('CF_USERNAME') || !defined('CF_API_KEY') || !defined('CF_CONTAINER') || !defined('CF_CONTAINER_URL')) {
-			// these should be defined in wp-config. if not, don't do anything here.
+
+		// relies on Voce_Settings
+		if (!class_exists('Voce_Settings')) {
+			return;
+		}
+
+		add_action('admin_menu', array($this, 'add_options_page'));
+
+		if (!self::get_setting('username') || !self::get_setting('api_key') || !self::get_setting('container') || !self::get_setting('root_url')) {
+			// these are the minimum required settings. should add an admin notice later...
 			return;
 		}
 
@@ -21,6 +34,57 @@ class CloudfilesCdn {
 		add_filter('wp_generate_attachment_metadata', array('CloudfilesCdn', 'catch_wp_generate_attachment_metadata'));
 		add_filter('bp_core_avatar_cropstore', array('CloudfilesCdn', 'catch_bp_core_avatar_cropstore'));
 		add_action('bp_core_avatar_save', array('CloudfilesCdn', 'catch_bp_core_avatar_save'), 10, 2);
+
+	}
+
+	/**
+	 * get general setting
+	 *
+	 * @param string $setting setting name
+	 * @return mixed setting value or false if not set
+	 */
+	public static function get_setting($setting) {
+		$settings = get_option(self::$option_general);
+		return (isset($settings[$setting])) ? $settings[$setting] : false;
+	}
+
+	/**
+	 * adds the options page
+	 *
+	 * @return void
+	 */
+	public function add_options_page() {
+		$this->submenu_general = add_options_page('Cloudfiles CDN', 'Cloudfiles CDN', 'manage_options', self::$option_general, array(&$this, 'submenu_general'));
+		$settings = new Voce_Settings(self::$option_general, self::$option_general);
+
+		$section = $settings->add_section('api', 'Cloudfiles API Settings', $this->submenu_general);
+		$section->add_field('username', 'Username', 'field_input');
+		$section->add_field('api_key', 'API Key', 'field_input');
+		$section->add_field('container', 'Container Name', 'field_input', array('description' => 'The container to store files in.'));
+		$section->add_field('root_url', 'Root URL', 'field_input', array('description' => 'The root URL to the container without a trailing slash.'));
+		$section->add_field('file_extensions', 'File Extensions', 'field_input');
+		$section->add_field('enable_debug', 'Enable Debugging?', 'field_checkbox', array('description' => 'Enable error_log() to log upload/delete actions.'));
+
+	}
+
+	/**
+	 * callback to display submenu_external
+	 *
+	 * @return void
+	 */
+	function submenu_general() {
+		?>
+		<div class="wrap">
+			<h2>Cloudfiles CDN Settings</h2>
+			<form method="post" action="options.php">
+				<?php settings_fields(self::$option_general); ?>
+				<?php do_settings_sections($this->submenu_general); ?>
+				<p class="submit">
+					<input name="Submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />
+				</p>
+				</form>
+			</div>
+			<?php
 	}
 
 	/**
@@ -38,7 +102,7 @@ class CloudfilesCdn {
 		$files[] = str_replace('-avatar2', '-avatar1', $files[0]);
 
 		foreach ($files as $file) {
-			if (defined('CF_DEBUG_ENABLED') && CF_DEBUG_ENABLED)
+			if (self::get_setting('enable_debug'))
 				error_log("DELETING OLD BP AVATAR: $file");
 
 			self::delete_file($file);
@@ -56,7 +120,7 @@ class CloudfilesCdn {
 			$relative_file_path = str_replace(ABSPATH, '', $file);
 			$file_type = wp_check_filetype($file);
 
-			if (defined('CF_DEBUG_ENABLED') && CF_DEBUG_ENABLED)
+			if (self::get_setting('enable_debug'))
 				error_log("UPLOADING BP AVATAR: $relative_file_path");
 			self::upload_file($file, $file_type['type'], $relative_file_path);
 		}
@@ -80,7 +144,7 @@ class CloudfilesCdn {
 			$file = $size_data['file'];
 			$relative_file_path = self::get_blog_path() . 'files' . trailingslashit($upload_dir['subdir']) . $file;
 			$file_type = wp_check_filetype($file);
-			if (defined('CF_DEBUG_ENABLED') && CF_DEBUG_ENABLED)
+			if (self::get_setting('enable_debug'))
 				error_log("UPLOADING INTERMEDIATE SIZE: $relative_file_path");
 			self::upload_file($upload_path . $file, $file_type['type'], $relative_file_path);
 		}
@@ -95,7 +159,7 @@ class CloudfilesCdn {
 	 * @return string filename
 	 */
 	private static function get_local_filename($url) {
-		return ABSPATH . str_replace(trailingslashit(CF_CONTAINER_URL), '', $url);
+		return ABSPATH . str_replace(trailingslashit(self::get_setting('root_url')), '', $url);
 	}
 
 	/**
@@ -112,7 +176,7 @@ class CloudfilesCdn {
 
 		$blog_path = self::get_blog_path();
 		$relative_url = $blog_path . self::remove_site_url($upload['url']);
-		if (defined('CF_DEBUG_ENABLED') && CF_DEBUG_ENABLED)
+		if (self::get_setting('enable_debug'))
 			error_log("UPLOADING: $relative_url");
 
 		// upload file
@@ -142,7 +206,7 @@ class CloudfilesCdn {
 		$relative_path = self::get_blog_path() . 'files/' . $file;
 
 		// delete the file from the CDN if it is on there
-		if (defined('CF_DEBUG_ENABLED') && CF_DEBUG_ENABLED)
+		if (self::get_setting('enable_debug'))
 			error_log("DELETING FILE: $relative_path");
 		self::delete_file(str_replace(ABSPATH, '', $relative_path));
 
@@ -174,9 +238,9 @@ class CloudfilesCdn {
 	 * @return void
 	 */
 	private static function get_relative_file($file) {
-		$cont_url = CF_CONTAINER_URL;
+		$cont_url = self::get_setting('root_url');
 		if (strpos($file, $cont_url) !== false) {
-			if ($file_parts = explode(trailingslashit(CF_CONTAINER_URL), $file)) {
+			if ($file_parts = explode(trailingslashit(self::get_setting('root_url')), $file)) {
 				// prepended w/bad upload path (e.g. http://c0002127.cdn1.cloudfiles.rackspacecloud.com/wp-content/uploads/2010/07/http://c0002127.cdn1.cloudfiles.rackspacecloud.com/wp-content/uploads/2010/07/653106995_338e53fb1416-150x150.jpg)
 				if (isset($file_parts[2])) {
 					return $file_parts[2];
@@ -198,7 +262,7 @@ class CloudfilesCdn {
 	 */
 	private static function delete_file($file) {
 		require_once(trailingslashit(dirname(__FILE__)) . 'cloudfiles/cloudfiles.php');
-		$auth = new CF_Authentication(CF_USERNAME, CF_API_KEY);
+		$auth = new CF_Authentication(self::get_setting('username'), self::get_setting('api_key'));
 
 		try {
 			$auth->authenticate();
@@ -208,7 +272,7 @@ class CloudfilesCdn {
 		}
 
 		$conn = new CF_Connection($auth);
-		$container = $conn->get_container(CF_CONTAINER);
+		$container = $conn->get_container(self::get_setting('container'));
 
 		try {
 			$obj = $container->get_object($file);
@@ -231,7 +295,7 @@ class CloudfilesCdn {
 	 */
 	public static function cdn_attachment_url($url, $post_id) {
 		if ($file = get_post_meta($post_id, '_wp_attached_file', true)) {
-			if (strpos($file, CF_CONTAINER_URL) !== false) {
+			if (strpos($file, self::get_setting('root_url')) !== false) {
 				return $file;
 			}
 		}
@@ -249,7 +313,7 @@ class CloudfilesCdn {
 	 */
 	private static function upload_file($file, $file_type, $file_url) {
 		require_once(trailingslashit(dirname(__FILE__)) . 'cloudfiles/cloudfiles.php');
-		$auth = new CF_Authentication(CF_USERNAME, CF_API_KEY);
+		$auth = new CF_Authentication(self::get_setting('username'), self::get_setting('api_key'));
 
 		try {
 			$auth->authenticate();
@@ -259,7 +323,7 @@ class CloudfilesCdn {
 		}
 
 		$conn = new CF_Connection($auth);
-		$container = $conn->get_container(CF_CONTAINER);
+		$container = $conn->get_container(self::get_setting('container'));
 
 		$obj = $container->create_object($file_url);
 		$obj->content_type = $file_type;
@@ -271,7 +335,7 @@ class CloudfilesCdn {
 			return false;
 		}
 
-		if (defined('CF_DEBUG_ENABLED') && CF_DEBUG_ENABLED)
+		if (self::get_setting('enable_debug'))
 			error_log("UPLOADED: $file, $file_type, $file_url");
 
 		return true;
@@ -288,9 +352,10 @@ class CloudfilesCdn {
 	}
 
 	private static function remove_cdn_url($url) {
-		return str_replace(trailingslashit(CF_CONTAINER_URL), '', $url);
+		return str_replace(trailingslashit(self::get_setting('root_url')), '', $url);
 	}
 
 }
 
+require_once('voce-settings.php');
 $cdn = new CloudfilesCdn();
