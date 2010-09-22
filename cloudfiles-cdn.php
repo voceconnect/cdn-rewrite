@@ -8,38 +8,14 @@ Author: Chris Scott, Michael Pretty
 Author URI: http://voceconnect.com/
 */
 
+require_once('voce-settings.php');
+
 class CloudfilesCdn {
 
 	var $submenu_general;
 
-	var $option_group = 'cloudfiles_cdn';
-	static $option_general = 'cloudfiles_cdn_general';
-
-	function __construct() {
-
-		// relies on Voce_Settings
-		if (!class_exists('Voce_Settings')) {
-			return;
-		}
-
-		add_action('admin_menu', array($this, 'add_options_page'));
-
-		if (!self::get_setting('username') || !self::get_setting('api_key') || !self::get_setting('container') || !self::get_setting('root_url') || !self::get_setting('file_extensions')) {
-			add_action('admin_notices', array('CloudfilesCdn', 'settings_warning'));
-			return;
-		}
-
-		add_filter('wp_handle_upload', array('CloudfilesCdn', 'catch_wp_handle_upload'));
-		add_filter('wp_delete_file', array('CloudfilesCdn', 'catch_wp_delete_file'));
-		add_filter('wp_generate_attachment_metadata', array('CloudfilesCdn', 'catch_wp_generate_attachment_metadata'));
-		add_filter('bp_core_avatar_cropstore', array('CloudfilesCdn', 'catch_bp_core_avatar_cropstore'));
-		add_action('bp_core_avatar_save', array('CloudfilesCdn', 'catch_bp_core_avatar_save'), 10, 2);
-
-	}
-
-	public static function settings_warning() {
-		echo "<div class='update-nag'>The Cloudfiles CDN plugin is missing some required settings.</div>";
-	}
+	//private static $option_group = 'cloudfiles_cdn';
+	const OPTION_GENERAL = 'cloudfiles_cdn_general';
 
 	/**
 	 * get general setting
@@ -48,8 +24,35 @@ class CloudfilesCdn {
 	 * @return mixed setting value or false if not set
 	 */
 	public static function get_setting($setting) {
-		$settings = get_option(self::$option_general);
+		$settings = get_option(self::OPTION_GENERAL);
 		return (isset($settings[$setting])) ? $settings[$setting] : false;
+	}
+
+	public function __construct() {}
+
+	public function initialize() {
+		// relies on Voce_Settings
+		if (!class_exists('Voce_Settings')) {
+			return;
+		}
+
+		add_action('admin_menu', array($this, 'add_options_page'));
+
+		if (!self::get_setting('username') || !self::get_setting('api_key') || !self::get_setting('container') || !self::get_setting('root_url') || !self::get_setting('file_extensions')) {
+			add_action('admin_notices', array($this, 'settings_warning'));
+			return;
+		}
+
+		add_filter('wp_handle_upload', array($this, 'catch_wp_handle_upload'));
+		add_filter('wp_delete_file', array($this, 'catch_wp_delete_file'));
+		add_filter('wp_generate_attachment_metadata', array($this, 'catch_wp_generate_attachment_metadata'));
+		add_filter('bp_core_avatar_cropstore', array($this, 'catch_bp_core_avatar_cropstore'));
+		add_action('bp_core_avatar_save', array($this, 'catch_bp_core_avatar_save'), 10, 2);
+
+	}
+
+	public function settings_warning() {
+		echo "<div class='update-nag'>The Cloudfiles CDN plugin is missing some required settings.</div>";
 	}
 
 	/**
@@ -58,8 +61,8 @@ class CloudfilesCdn {
 	 * @return void
 	 */
 	public function add_options_page() {
-		$this->submenu_general = add_options_page('Cloudfiles CDN', 'Cloudfiles CDN', 'manage_options', self::$option_general, array(&$this, 'submenu_general'));
-		$settings = new Voce_Settings(self::$option_general, self::$option_general);
+		$this->submenu_general = add_options_page('Cloudfiles CDN', 'Cloudfiles CDN', 'manage_options', self::OPTION_GENERAL, array($this, 'submenu_general'));
+		$settings = new Voce_Settings(self::OPTION_GENERAL, self::OPTION_GENERAL);
 
 		$section = $settings->add_section('api', 'Cloudfiles API Settings', $this->submenu_general);
 		$section->add_field('username', 'Username (required)', 'field_input');
@@ -81,14 +84,14 @@ class CloudfilesCdn {
 		<div class="wrap">
 			<h2>Cloudfiles CDN Settings</h2>
 			<form method="post" action="options.php">
-				<?php settings_fields(self::$option_general); ?>
+				<?php settings_fields(self::OPTION_GENERAL); ?>
 				<?php do_settings_sections($this->submenu_general); ?>
 				<p class="submit">
 					<input name="Submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />
 				</p>
-				</form>
-			</div>
-			<?php
+			</form>
+		</div>
+		<?php
 	}
 
 	/**
@@ -98,7 +101,7 @@ class CloudfilesCdn {
 	 * @param string $old the path to the file being deleted
 	 * @return void
 	 */
-	public static function catch_bp_core_avatar_save($user_id, $old) {
+	public function catch_bp_core_avatar_save($user_id, $old) {
 		$files = array();
 		// this will be -avatar2
 		$files[] = str_replace(ABSPATH, '', $old);
@@ -109,7 +112,7 @@ class CloudfilesCdn {
 			if (self::get_setting('enable_debug'))
 				error_log("DELETING OLD BP AVATAR: $file");
 
-			self::delete_file($file);
+			$this->delete_file($file);
 		}
 	}
 
@@ -119,14 +122,14 @@ class CloudfilesCdn {
 	 * @param string $files
 	 * @return array the original file array
 	 */
-	public static function catch_bp_core_avatar_cropstore($files) {
+	public function catch_bp_core_avatar_cropstore($files) {
 		foreach ((array) $files as $file) {
 			$relative_file_path = str_replace(ABSPATH, '', $file);
 			$file_type = wp_check_filetype($file);
 
 			if (self::get_setting('enable_debug'))
 				error_log("UPLOADING BP AVATAR: $relative_file_path");
-			self::upload_file($file, $file_type['type'], $relative_file_path);
+			$this->upload_file($file, $file_type['type'], $relative_file_path);
 		}
 
 		return $files;
@@ -138,7 +141,7 @@ class CloudfilesCdn {
 	 * @param string $metadata
 	 * @return array updated metadata
 	 */
-	public static function catch_wp_generate_attachment_metadata($metadata) {
+	public function catch_wp_generate_attachment_metadata($metadata) {
 		//error_log("WP_GENERATE_ATTACHMENT_METADATA: " . var_export($metadata, true));
 		$upload_dir = wp_upload_dir();
 		$upload_path = trailingslashit($upload_dir['path']);
@@ -150,7 +153,7 @@ class CloudfilesCdn {
 			$file_type = wp_check_filetype($file);
 			if (self::get_setting('enable_debug'))
 				error_log("UPLOADING INTERMEDIATE SIZE: $relative_file_path");
-			self::upload_file($upload_path . $file, $file_type['type'], $relative_file_path);
+			$this->upload_file($upload_path . $file, $file_type['type'], $relative_file_path);
 		}
 
 		return $metadata;
@@ -162,7 +165,7 @@ class CloudfilesCdn {
 	 * @param string $url
 	 * @return string filename
 	 */
-	private static function get_local_filename($url) {
+	private function get_local_filename($url) {
 		return ABSPATH . str_replace(trailingslashit(self::get_setting('root_url')), '', $url);
 	}
 
@@ -172,19 +175,19 @@ class CloudfilesCdn {
 	 * @param string $upload
 	 * @return void
 	 */
-	public static function catch_wp_handle_upload($upload) {
+	public function catch_wp_handle_upload($upload) {
 		// check for buddypress avatar upload and don't upload since it resizes and deletes this one
 		if (function_exists('bp_core_setup_globals') && strpos($upload['file'], '/avatars/') !== false) {
 			return $upload;
 		}
 
-		$blog_path = self::get_blog_path();
-		$relative_url = $blog_path . self::remove_site_url($upload['url']);
+		$blog_path = $this->get_blog_path();
+		$relative_url = $blog_path . $this->remove_site_url($upload['url']);
 		if (self::get_setting('enable_debug'))
 			error_log("UPLOADING: $relative_url");
 
 		// upload file
-		if (!self::upload_file($upload['file'], $upload['type'], $relative_url)) {
+		if (!$this->upload_file($upload['file'], $upload['type'], $relative_url)) {
 			error_log("[CloudfilesCdn] Error uploading file: $relative_url");
 			return $upload;
 		}
@@ -199,7 +202,7 @@ class CloudfilesCdn {
 	 * @param string $file
 	 * @return string the original file path
 	 */
-	public static function catch_wp_delete_file($file) {
+	public function catch_wp_delete_file($file) {
 		//error_log("WP_DELETE_FILE: " . var_export($file, true));
 		// handle 'wp-content/blogs.dir/1/files/2010/07/653106995_338e53fb1412.jpg' files
 		if (strpos($file, 'blogs.dir')) {
@@ -207,12 +210,12 @@ class CloudfilesCdn {
 			$file = $parts[1];
 		}
 		$upload_dir = wp_upload_dir();
-		$relative_path = self::get_blog_path() . 'files/' . $file;
+		$relative_path = $this->get_blog_path() . 'files/' . $file;
 
 		// delete the file from the CDN if it is on there
 		if (self::get_setting('enable_debug'))
 			error_log("DELETING FILE: $relative_path");
-		self::delete_file(str_replace(ABSPATH, '', $relative_path));
+		$this->delete_file(str_replace(ABSPATH, '', $relative_path));
 
 		return $file;
 	}
@@ -222,7 +225,7 @@ class CloudfilesCdn {
 	 *
 	 * @return string
 	 */
-	private static function get_blog_path() {
+	private function get_blog_path() {
 		global $blog_id;
 		$blog_path = '';
 		if ((int) $blog_id !== 1) {
@@ -241,7 +244,7 @@ class CloudfilesCdn {
 	 * @param string $file
 	 * @return void
 	 */
-	private static function get_relative_file($file) {
+	private function get_relative_file($file) {
 		$cont_url = self::get_setting('root_url');
 		if (strpos($file, $cont_url) !== false) {
 			if ($file_parts = explode(trailingslashit(self::get_setting('root_url')), $file)) {
@@ -264,7 +267,7 @@ class CloudfilesCdn {
 	 * @param string $file relative filename
 	 * @return bool true on success, false on failure
 	 */
-	private static function delete_file($file) {
+	private function delete_file($file) {
 		require_once(trailingslashit(dirname(__FILE__)) . 'cloudfiles/cloudfiles.php');
 		$auth = new CF_Authentication(self::get_setting('username'), self::get_setting('api_key'));
 
@@ -297,7 +300,7 @@ class CloudfilesCdn {
 	 * @param string $post_id
 	 * @return string original or updated URL
 	 */
-	public static function cdn_attachment_url($url, $post_id) {
+	public function cdn_attachment_url($url, $post_id) {
 		if ($file = get_post_meta($post_id, '_wp_attached_file', true)) {
 			if (strpos($file, self::get_setting('root_url')) !== false) {
 				return $file;
@@ -315,7 +318,7 @@ class CloudfilesCdn {
 	 * @param string $file_url the file's site-relative URL
 	 * @return bool true on succes, false on fail
 	 */
-	private static function upload_file($file, $file_type, $file_url) {
+	private function upload_file($file, $file_type, $file_url) {
 		require_once(trailingslashit(dirname(__FILE__)) . 'cloudfiles/cloudfiles.php');
 		$auth = new CF_Authentication(self::get_setting('username'), self::get_setting('api_key'));
 
@@ -351,18 +354,16 @@ class CloudfilesCdn {
 	 * @param string $absolute_url
 	 * @return string relative url
 	 */
-	private static function remove_site_url($absolute_url) {
+	private function remove_site_url($absolute_url) {
 		return str_replace(trailingslashit(get_option('siteurl')), '', $absolute_url);
 	}
 
-	private static function remove_cdn_url($url) {
+	private function remove_cdn_url($url) {
 		return str_replace(trailingslashit(self::get_setting('root_url')), '', $url);
 	}
 
 }
-
-require_once('voce-settings.php');
-$cdn = new CloudfilesCdn();
+add_action('init', array(new CloudfilesCdn(), 'initialize'));
 
 class CDN_Rewrite {
 
@@ -380,7 +381,7 @@ class CDN_Rewrite {
 	 *
 	 */
 	public function initialize() {
-		if(!empty($this->cdn_root_url)) {
+		if('/' != $this->cdn_root_url) {
 			add_action('template_redirect', array($this, 'start_buffer'), 1);
 		}
 	}
