@@ -25,6 +25,11 @@ class CloudfilesCdn {
 	 */
 	public static function get_setting($setting) {
 		$settings = get_option(self::OPTION_GENERAL);
+		if(!$settings || !is_array($settings)) {
+			$settings = array(
+				'file_extensions' => 'bmp|bz2|css|gif|ico|gz|jpg|jpeg|js|mp3|pdf|png|rar|rtf|swf|tar|tgz|txt|wav|zip'
+			);
+		}
 		return (isset($settings[$setting])) ? $settings[$setting] : false;
 	}
 
@@ -372,7 +377,7 @@ class CDN_Rewrite {
 	private $cdn_root_url;
 
 	public function __construct() {
-		$this->file_extensions = 'bmp|bz2|css|gif|ico|gz|jpg|jpeg|js|mp3|pdf|png|rar|rtf|swf|tar|tgz|txt|wav|zip';
+		$this->file_extensions = CloudfilesCdn::get_setting('file_extensions');
 		$this->cdn_root_url = untrailingslashit(CloudfilesCdn::get_setting('root_url'));
 	}
 
