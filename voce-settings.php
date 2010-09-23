@@ -61,7 +61,7 @@ if (!class_exists('Voce_Settings')) {
 		 * @param string $extra_args extra args to pass to the callback
 		 * @return void
 		 */
-		function add_settings_field($id, $label, $display_callback, $page, $section, $extra_args = null) {
+		public function add_settings_field($id, $label, $display_callback, $page, $section, $extra_args = null) {
 
 			$args = array(
 				'id' => $id,
@@ -89,7 +89,7 @@ if (!class_exists('Voce_Settings')) {
 		 * @param string $args
 		 * @return string checkbox
 		 */
-		function field_checkbox($args) {
+		public function field_checkbox($args) {
 			$options = get_option($this->option_name);
 
 			$defaults = array('prepend_field' => '', 'append_field' => '', 'class' => '');
@@ -112,107 +112,107 @@ if (!class_exists('Voce_Settings')) {
 			);
 		}
 
-			/**
-			 * input type text callback for settings API
-			 *
-			 * @param string $args
-			 * @return string input
-			 */
-			function field_input($args) {
-				$options = get_option($this->option_name);
+		/**
+		 * input type text callback for settings API
+		 *
+		 * @param string $args
+		 * @return string input
+		 */
+		public function field_input($args) {
+			$options = get_option($this->option_name);
 
-				$defaults = array('prepend_field' => '', 'append_field' => '', 'class' => 'regular-text', 'type' => 'text');
-				$args = wp_parse_args($args, $defaults);
-				extract($args);
+			$defaults = array('prepend_field' => '', 'append_field' => '', 'class' => 'regular-text', 'type' => 'text');
+			$args = wp_parse_args($args, $defaults);
+			extract($args);
 
-				$description = (isset($description) && $description) ? sprintf('<p><span class="description">%s</span></p>', $description) : '';
+			$description = (isset($description) && $description) ? sprintf('<p><span class="description">%s</span></p>', $description) : '';
 
-				if (!isset($value)) {
-					if (isset($options[$id])) {
-						$value = $options[$id];
-					} else {
-						$value = '';
-					}
+			if (!isset($value)) {
+				if (isset($options[$id])) {
+					$value = $options[$id];
+				} else {
+					$value = '';
+				}
+			}
+
+			echo sprintf(
+				"%s<input id='%s' name='{$this->option_name}[%s]' type='%s' class='%s' value='%s' />%s%s",
+				$prepend_field,
+				$id,
+				$id,
+				$type,
+				$class,
+				esc_attr($value),
+				$append_field,
+				$description
+			);
+		}
+
+		/**
+		 * textarea callback for settings API
+		 *
+		 * @param string $args
+		 * @return string textarea
+		 */
+		public function field_textarea($args) {
+			$options = get_option($this->option_name);
+			$id = $args['id'];
+
+			$defaults = array('prepend_field' => '', 'append_field' => '', 'columns' => 40, 'rows' => 8, 'class' => 'large-text');
+			$args = wp_parse_args($args, $defaults);
+			extract($args);
+
+			$description = (isset($description) && $description) ? sprintf('<p><span class="description">%s</span></p>', $description) : '';
+
+			echo sprintf(
+				"%s<textarea id='%s' name='{$this->option_name}[%s]' columns='%s' rows='%s' class='%s' />%s</textarea>%s%s",
+				$prepend_field,
+				$id,
+				$id,
+				$columns,
+				$rows,
+				$class,
+				esc_attr($options[$id]),
+				$append_field,
+				$description
+			);
+		}
+
+		public function field_radio($args) {
+			$options = get_option($this->option_name);
+			$id = $args['id'];
+
+			$defaults = array('type' => 'radio', 'class' => '');
+			$args = wp_parse_args($args, $defaults);
+			extract($args);
+
+			if (!$items) {
+				return;
+			}
+
+			echo '<fieldset><p>';
+			foreach ($items as $item) {
+				if (!empty($options[$id])) {
+					$checked = checked($options[$id], $item['value'], false);
+				} else {
+					$checked = false;
 				}
 
 				echo sprintf(
-					"%s<input id='%s' name='{$this->option_name}[%s]' type='%s' class='%s' value='%s' />%s%s",
-					$prepend_field,
+					"<label> <input id='%s' name='{$this->option_name}[%s]' type='%s', class='%s' value='%s' %s /> %s</label><br />",
 					$id,
 					$id,
 					$type,
 					$class,
-					esc_attr($value),
-					$append_field,
-					$description
+					esc_attr($item['value']),
+					$checked,
+					esc_html($item['text'])
 				);
 			}
+			echo '</fieldset></p>';
 
-			/**
-			 * textarea callback for settings API
-			 *
-			 * @param string $args
-			 * @return string textarea
-			 */
-			function field_textarea($args) {
-				$options = get_option($this->option_name);
-				$id = $args['id'];
-
-				$defaults = array('prepend_field' => '', 'append_field' => '', 'columns' => 40, 'rows' => 8, 'class' => 'large-text');
-				$args = wp_parse_args($args, $defaults);
-				extract($args);
-
-				$description = (isset($description) && $description) ? sprintf('<p><span class="description">%s</span></p>', $description) : '';
-
-				echo sprintf(
-					"%s<textarea id='%s' name='{$this->option_name}[%s]' columns='%s' rows='%s' class='%s' />%s</textarea>%s%s",
-					$prepend_field,
-					$id,
-					$id,
-					$columns,
-					$rows,
-					$class,
-					esc_attr($options[$id]),
-					$append_field,
-					$description
-				);
-			}
-
-			function field_radio($args) {
-				$options = get_option($this->option_name);
-				$id = $args['id'];
-
-				$defaults = array('type' => 'radio', 'class' => '');
-				$args = wp_parse_args($args, $defaults);
-				extract($args);
-
-				if (!$items) {
-					return;
-				}
-
-				echo '<fieldset><p>';
-				foreach ($items as $item) {
-					if (!empty($options[$id])) {
-						$checked = checked($options[$id], $item['value'], false);
-					} else {
-						$checked = false;
-					}
-
-					echo sprintf(
-						"<label> <input id='%s' name='{$this->option_name}[%s]' type='%s', class='%s' value='%s' %s /> %s</label><br />",
-						$id,
-						$id,
-						$type,
-						$class,
-						esc_attr($item['value']),
-						$checked,
-						esc_html($item['text'])
-					);
-				}
-				echo '</fieldset></p>';
-
-				$description = (isset($description) && $description) ? sprintf('<p><span class="description">%s</span></p>', $description) : '';
-				echo $description;
-			}
+			$description = (isset($description) && $description) ? sprintf('<p><span class="description">%s</span></p>', $description) : '';
+			echo $description;
+		}
 	}
 }
