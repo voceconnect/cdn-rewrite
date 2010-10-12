@@ -15,14 +15,28 @@ class CDN_Rewrite {
 	const OPTION_GENERAL = 'cdn_general';
 
 	private $submenu_general;
-	private $file_extensions;
-	private $blog_details;
+
 	private $cdn_root_url;
+	private $file_extensions;
+
+	private $css_file_extensions;
+	private $css_cdn_root_url;
+
+	private $js_file_extensions;
+	private $js_cdn_root_url;
+
+	private $blog_details;
 
 	public function __construct() {
-		$this->file_extensions = $this->get_setting('file_extensions');
 		$this->cdn_root_url = untrailingslashit($this->get_setting('root_url'));
-	}
+		$this->file_extensions = $this->get_setting('file_extensions');
+
+		$this->css_cdn_root_url = untrailingslashit($this->get_setting('css_root_url'));
+		$this->css_file_extensions = $this->get_setting('css_file_extensions');
+
+		$this->js_cdn_root_url = untrailingslashit($this->get_setting('js_root_url'));
+		$this->js_file_extensions = $this->get_setting('js_file_extensions');
+}
 
 	public function initialize() {
 		if (!class_exists('Voce_Settings')) {
@@ -50,7 +64,9 @@ class CDN_Rewrite {
 		$settings = get_option(self::OPTION_GENERAL);
 		if(!$settings || !is_array($settings)) {
 			$settings = array(
-				'file_extensions' => 'bmp|bz2|css|gif|ico|gz|jpg|jpeg|js|mp3|pdf|png|rar|rtf|swf|tar|tgz|txt|wav|zip'
+				'file_extensions' => 'bmp|bz2|gif|ico|gz|jpg|jpeg|mp3|pdf|png|rar|rtf|swf|tar|tgz|txt|wav|zip',
+				'css_file_extensions' => 'css',
+				'js_file_extensions' => 'js'
 			);
 			update_option(self::OPTION_GENERAL, $settings);
 		}
@@ -73,6 +89,10 @@ class CDN_Rewrite {
 		$section = $settings->add_section('api', 'CDN Rewrite Settings', $this->submenu_general);
 		$section->add_field('root_url', 'CDN Root URL (required)', 'field_input', array('description' => 'The base URL of the CDN.'));
 		$section->add_field('file_extensions', 'File Extensions (required)', 'field_input');
+		$section->add_field('css_root_url', 'CDN Root URL for CSS Files (optional)', 'field_input', array('description' => 'The base URL of the CDN for CSS Files.'));
+		$section->add_field('css_file_extensions', 'File Extensions for CSS Files (required)', 'field_input');
+		$section->add_field('js_root_url', 'CDN Root URL for JS Files (optional)', 'field_input', array('description' => 'The base URL of the CDN for JS Files.'));
+		$section->add_field('js_file_extensions', 'File Extensions for JS Files (optional)', 'field_input');
 	}
 
 	/**
@@ -111,7 +131,7 @@ class CDN_Rewrite {
 	 */
 	public function filter_urls($content) {
 		$root_url = $this->get_site_root_url();
-		$regex = '#(?<=[(\"\'])'.quotemeta($root_url).'(?:(/[^\"\')]+\.('.$this->file_extensions.')))#';
+		$regex = '#(?<=[(\"\'])'.quotemeta($root_url).'(?:(/[^\"\')]+\.('.join('|', array($this->file_extensions,$this->css_file_extensions,$this->js_file_extensions)).')))#';
 
 		$content = preg_replace_callback($regex, array($this, 'url_rewrite'), $content);
 
@@ -161,6 +181,12 @@ class CDN_Rewrite {
 			if((0 === strpos($path, $bloginfo->path)) && (0 !== strpos($path, $bloginfo->path.'files/'))) {
 				$path = '/'.substr($path, strlen($bloginfo->path));
 			}
+		}
+		if('/' !== $this->css_cdn_root_url && preg_match("/^.*\.(".$this->css_file_extensions.")$/i", $path) ) {
+			return $this->css_cdn_root_url . $path;
+		}
+		if('/' !== $this->js_cdn_root_url && preg_match("/^.*\.(".$this->js_file_extensions.")$/i", $path) ) {
+			return $this->js_cdn_root_url . $path;
 		}
 		return $this->cdn_root_url . $path;
 	}
