@@ -91,7 +91,7 @@ class CDN_Rewrite {
 		$section->add_field('root_url', 'CDN Root URL (required)', 'field_input', array('description' => 'The base URL of the CDN.'));
 		$section->add_field('file_extensions', 'File Extensions (required)', 'field_input');
 		$section->add_field('css_root_url', 'CDN Root URL for CSS Files (optional)', 'field_input', array('description' => 'The base URL of the CDN for CSS Files.'));
-		$section->add_field('css_file_extensions', 'File Extensions for CSS Files (required)', 'field_input');
+		$section->add_field('css_file_extensions', 'File Extensions for CSS Files (optional)', 'field_input');
 		$section->add_field('js_root_url', 'CDN Root URL for JS Files (optional)', 'field_input', array('description' => 'The base URL of the CDN for JS Files.'));
 		$section->add_field('js_file_extensions', 'File Extensions for JS Files (optional)', 'field_input');
 	}
