@@ -50,7 +50,8 @@ class CDN_Rewrite {
 		}
 
 		if('/' != $this->cdn_root_url) {
-			add_action('template_redirect', array($this, 'start_buffer'), 1);
+			$action = (defined('XMLRPC_REQUEST') && XMLRPC_REQUEST) ? 'xmlrpc_call' : 'template_redirect';
+			add_action($action, array($this, 'start_buffer'), 1);
 		}
 	}
 
@@ -130,9 +131,14 @@ class CDN_Rewrite {
 	 * @return string
 	 */
 	public function filter_urls($content) {
-		$root_url = $this->get_site_root_url();
-		$regex = '#(?<=[(\"\'])'.quotemeta($root_url).'(?:(/[^\"\')]+\.('.join('|', array($this->file_extensions,$this->css_file_extensions,$this->js_file_extensions)).')))#';
 
+		$root_url = $this->get_site_root_url();
+		$xml_begin = $xml_end = '';
+		if (defined('XMLRPC_REQUEST') && XMLRPC_REQUEST) {
+			$xml_begin = '>';
+			$xml_end = '<';
+		}
+		$regex = '#(?<=[(\"\''.$xml_begin.'])'.quotemeta($root_url).'(?:(/[^\"\''.$xml_end.')]+\.('.join('|', array($this->file_extensions,$this->css_file_extensions,$this->js_file_extensions)).')))#';
 		$content = preg_replace_callback($regex, array($this, 'url_rewrite'), $content);
 
 		return $content;
