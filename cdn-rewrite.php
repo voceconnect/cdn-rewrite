@@ -138,7 +138,8 @@ class CDN_Rewrite {
 			$xml_begin = '>';
 			$xml_end = '<';
 		}
-		$regex = '#(?<=[(\"\''.$xml_begin.'])'.quotemeta($root_url).'(?:(/[^\"\''.$xml_end.')]+\.('.join('|', array($this->file_extensions,$this->css_file_extensions,$this->js_file_extensions)).')))#';
+		$extensions = join('|', array_filter(array($this->file_extensions, $this->css_file_extensions, $this->js_file_extensions)));
+		$regex = '#(?<=[(\"\''.$xml_begin.'])'.quotemeta($root_url).'(?:(/[^\"\''.$xml_end.')]+\.('.$extensions.')))#';
 		$content = preg_replace_callback($regex, array($this, 'url_rewrite'), $content);
 
 		return $content;
