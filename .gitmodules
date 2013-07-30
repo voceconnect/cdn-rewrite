@@ -1,0 +1,3 @@
+[submodule "voce-settings-api"]
+	path = voce-settings-api
+	url = git@github.com:voceconnect/voce-settings-api.git
