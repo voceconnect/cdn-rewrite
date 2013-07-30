@@ -14,8 +14,6 @@ class CDN_Rewrite {
 
 	const OPTION_GENERAL = 'cdn_general';
 
-	private $submenu_general;
-
 	private $cdn_root_url;
 	private $file_extensions;
 
@@ -44,11 +42,11 @@ class CDN_Rewrite {
 	}
 
 	public function initialize() {
-		if (!class_exists('Voce_Settings_Api')) {
+		if (!class_exists('Voce_Settings_API')) {
 			return;
 		}
 
-		self::add_options_page();
+		$this->add_options_page();
 		if ('' == $this->file_extensions || '' == $this->cdn_root_url) {
 			add_action('admin_notices', array($this, 'settings_warning'));
 			return;
@@ -97,26 +95,6 @@ class CDN_Rewrite {
 				->add_setting( 'File Extensions for CSS Files (optional)', 'css_file_extensions' )->group
 				->add_setting( 'CDN Root URL for JS Files (optional, defaults to Root URL)', 'js_root_url', array( 'description' => 'The base URL of the CDN for JS Files.' ) )->group
 				->add_setting( 'File Extensions for JS Files (optional, defaults to Root URL)', 'js_file_extensions' );
-	}
-
-	/**
-	 * callback to display submenu_external
-	 *
-	 * @return void
-	 */
-	function submenu_general() {
-		?>
-		<div class="wrap">
-			<h2>CDN Rewrite Settings</h2>
-			<form method="post" action="options.php">
-				<?php settings_fields(self::OPTION_GENERAL); ?>
-				<?php do_settings_sections($this->submenu_general); ?>
-				<p class="submit">
-					<input name="Submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />
-				</p>
-			</form>
-		</div>
-		<?php
 	}
 
 	/**
