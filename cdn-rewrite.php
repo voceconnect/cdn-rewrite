@@ -8,13 +8,11 @@ Author: Chris Scott, Michael Pretty
 Author URI: http://voceconnect.com/
 */
 
-require_once('voce-settings.php');
+require_once('voce-settings-api/voce-settings-api.php');
 
 class CDN_Rewrite {
 
 	const OPTION_GENERAL = 'cdn_general';
-
-	private $submenu_general;
 
 	private $cdn_root_url;
 	private $file_extensions;
@@ -44,11 +42,11 @@ class CDN_Rewrite {
 	}
 
 	public function initialize() {
-		if (!class_exists('Voce_Settings')) {
+		if (!class_exists('Voce_Settings_API')) {
 			return;
 		}
 
-		add_action('admin_menu', array($this, 'add_options_page'));
+		$this->add_options_page();
 		if ('' == $this->file_extensions || '' == $this->cdn_root_url) {
 			add_action('admin_notices', array($this, 'settings_warning'));
 			return;
@@ -89,36 +87,14 @@ class CDN_Rewrite {
 	 * @return void
 	 */
 	public function add_options_page() {
-		$this->submenu_general = add_options_page('CDN Rewrite', 'CDN Rewrite', 'manage_options', self::OPTION_GENERAL, array($this, 'submenu_general'));
-		$settings = new Voce_Settings(self::OPTION_GENERAL, self::OPTION_GENERAL);
-
-		$section = $settings->add_section('api', 'CDN Rewrite Settings', $this->submenu_general);
-		$section->add_field('root_url', 'CDN Root URL (required)', 'field_input', array('description' => 'The base URL of the CDN.'));
-		$section->add_field('file_extensions', 'File Extensions (required)', 'field_input');
-		$section->add_field('css_root_url', 'CDN Root URL for CSS Files (optional)', 'field_input', array('description' => 'The base URL of the CDN for CSS Files.'));
-		$section->add_field('css_file_extensions', 'File Extensions for CSS Files (optional)', 'field_input');
-		$section->add_field('js_root_url', 'CDN Root URL for JS Files (optional, defaults to Root URL)', 'field_input', array('description' => 'The base URL of the CDN for JS Files.'));
-		$section->add_field('js_file_extensions', 'File Extensions for JS Files (optional, defaults to Root URL)', 'field_input');
-	}
-
-	/**
-	 * callback to display submenu_external
-	 *
-	 * @return void
-	 */
-	function submenu_general() {
-		?>
-		<div class="wrap">
-			<h2>CDN Rewrite Settings</h2>
-			<form method="post" action="options.php">
-				<?php settings_fields(self::OPTION_GENERAL); ?>
-				<?php do_settings_sections($this->submenu_general); ?>
-				<p class="submit">
-					<input name="Submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />
-				</p>
-			</form>
-		</div>
-		<?php
+		Voce_Settings_API::GetInstance()->add_page('CDN Rewrite', 'CDN Rewrite', self::OPTION_GENERAL, 'manage_options', '', 'options-general.php' )
+			->add_group( 'CDN Rewrite Settings', 'cdn_general' )
+				->add_setting( 'CDN Root URL (required)', 'root_url', array( 'description' => 'The base URL of the CDN.' ) )->group
+				->add_setting( 'File Extensions (required)', 'file_extensions' )->group
+				->add_setting( 'CDN Root URL for CSS Files (optional)', 'css_root_url', array( 'description' => 'The base URL of the CDN for CSS Files.' ) )->group
+				->add_setting( 'File Extensions for CSS Files (optional)', 'css_file_extensions' )->group
+				->add_setting( 'CDN Root URL for JS Files (optional, defaults to Root URL)', 'js_root_url', array( 'description' => 'The base URL of the CDN for JS Files.' ) )->group
+				->add_setting( 'File Extensions for JS Files (optional, defaults to Root URL)', 'js_file_extensions' );
 	}
 
 	/**
