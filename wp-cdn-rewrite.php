@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: CDN Rewrite
+Plugin Name: WP CDN Rewrite
 Plugin URI: http://voceconnect.com/
 Description: Rewrites asset URLs to CDN
 Version: 0.1.1
-Author: Chris Scott, Michael Pretty
+Author: Chris Scott, Michael Pretty, Kevin Langley
 Author URI: http://voceconnect.com/
 */
 
