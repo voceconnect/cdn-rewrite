@@ -22,3 +22,10 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 1. Upload `cdn-rewrite` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Once the plugin has been activated, navigate to the CDN Rewrite settings page and set the appropriate settings.
+
+== Changelog ==
+= 0.1.1 =
+*Fixing issue with URLs without a path part.
+
+= 0.1.0 =
+*Initial version.

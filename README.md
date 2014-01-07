@@ -20,7 +20,7 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 ### As standard plugin:  
 > See [Installing Plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
-## Changelog
+## Changelog  
 
 ** 0.1.1 **  
 *Fixing issue with URLs without a path part.*
