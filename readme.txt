@@ -1,4 +1,4 @@
-=== CDN Rewrite ===
+=== WP CDN Rewrite ===
 Contributors: voceplatforms, chrisscott, prettyboymp
 Tags: cdn, rewrite
 Requires at least: 3.3

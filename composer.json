@@ -1,5 +1,5 @@
 {
-    "name": "voceconnect/cdn-rewrite",
+    "name": "voceconnect/wp-cdn-rewrite",
     "description": "This plugin allows you to rewrite the root url of assets, css, and js files. This allows you to load these resources from an external URL improving the page load time by taking advantage of parallel browser requests.",
     "license": "GPLv2+",
     "authors": [
@@ -16,6 +16,6 @@
         "voceconnect/voce-settings-api": "~0.4"
     },
     "autoload": {
-        "files": ["cdn-rewrite.php"]
+        "files": ["wp-cdn-rewrite.php"]
     }
 }
