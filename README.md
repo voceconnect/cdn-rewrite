@@ -4,7 +4,7 @@ Contributors: voceplatforms, chrisscott, prettyboymp
 Tags: cdn, rewrite  
 Requires at least: 3.3  
 Tested up to: 3.8  
-Stable tag: 0.1.0  
+Stable tag: 0.1.1  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,3 +19,11 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 
 ### As standard plugin:  
 > See [Installing Plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
+
+## Changelog
+
+** 0.1.1 **  
+*Fixing issue with URLs without a path part.*
+
+** 0.1.0 **  
+*Initial version.*

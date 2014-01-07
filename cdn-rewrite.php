@@ -3,7 +3,7 @@
 Plugin Name: CDN Rewrite
 Plugin URI: http://voceconnect.com/
 Description: Rewrites asset URLs to CDN
-Version: 0.1
+Version: 0.1.1
 Author: Chris Scott, Michael Pretty
 Author URI: http://voceconnect.com/
 */
@@ -206,7 +206,12 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 		private function get_version($url) {
 			if(0 === strpos($url, $this->root_url)) {
 				$parts = parse_url($url);
-				$file_path = str_replace(site_url('/'), ABSPATH, $parts['scheme'].'://'.$parts['host'].$parts['path']);
+				foreach( array( 'scheme', 'host', 'path' ) as $part ){
+					if( !isset( $parts[$part] ) )
+						return false;
+				}
+
+				$file_path = str_replace( site_url('/'), ABSPATH, $parts['scheme'] . '://' . $parts['host'] . $parts['path'] );
 				if(	!($version = @filemtime($file_path)) ) {
 					$version = $this->default_version;
 				}
