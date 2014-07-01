@@ -21,11 +21,11 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 > See [Installing Plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
 ## Changelog  
-** 0.1.2 **  
+**0.1.2**  
 * Adding Capistrano deploy files
 
-** 0.1.1 **  
-*Fixing issue with URLs without a path part.*
+**0.1.1**  
+* Fixing issue with URLs without a path part.
 
-** 0.1.0 **  
-*Initial version.*
+**0.1.0**  
+* Initial version.
