@@ -3,7 +3,7 @@ Contributors: voceplatforms, chrisscott, prettyboymp, kevinlangleyjr
 Tags: cdn, rewrite
 Requires at least: 3.3
 Tested up to: 3.8
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,8 +24,11 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 3. Once the plugin has been activated, navigate to the CDN Rewrite settings page and set the appropriate settings.
 
 == Changelog ==
+= 0.1.2 =
+* Adding Capistrano deploy files
+
 = 0.1.1 =
-*Fixing issue with URLs without a path part.
+* Fixing issue with URLs without a path part.
 
 = 0.1.0 =
-*Initial version.
+* Initial version.
