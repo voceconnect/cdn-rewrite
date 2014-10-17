@@ -46,7 +46,7 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 
 		public function initialize() {
 			if( !class_exists( 'Voce_Settings_API' ) )
-	 			_doing_it_wrong( __CLASS__, 'The Voce Settings API plugin must be active for the CDN Rewrite plugin to work' );
+	 			return _doing_it_wrong( __CLASS__, 'The Voce Settings API plugin must be active for the CDN Rewrite plugin to work', NULL );
 
 			$this->add_options_page();
 			if ('' == $this->file_extensions || '' == $this->cdn_root_url) {
