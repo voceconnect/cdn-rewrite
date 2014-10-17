@@ -204,6 +204,8 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 		}
 
 		private function get_version($url) {
+			$version = false;
+
 			if(0 === strpos($url, $this->root_url)) {
 				$parts = parse_url($url);
 				foreach( array( 'scheme', 'host', 'path' ) as $part ){
@@ -212,12 +214,12 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 				}
 
 				$file_path = str_replace( site_url('/'), ABSPATH, $parts['scheme'] . '://' . $parts['host'] . $parts['path'] );
-				if(	!($version = @filemtime($file_path)) ) {
+
+				if( file_exists( $file_path ) && !($version = @filemtime($file_path)) ) {
 					$version = $this->default_version;
 				}
-				return $version;
 			}
-			return false;
+			return $version;
 		}
 
 		public function replace_version($src) {
