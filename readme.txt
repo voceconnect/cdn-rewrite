@@ -25,7 +25,7 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 
 == Changelog ==
 = 0.1.4 =  
-* Fixing error when file does not exist
+* Fixing error when file does not exist and fixing _doing_it_wrong call
 
 = 0.1.3 =  
 * Adding Grunt build files
