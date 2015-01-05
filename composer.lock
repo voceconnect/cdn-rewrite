@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "00b466b2559c0eba474c60bd0b7f040c",
+    "hash": "96e12d52f1b75a6acbe5d7de047a843b",
     "packages": [
         {
             "name": "voceconnect/voce-settings-api",
-            "version": "0.4.9",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/voceconnect/voce-settings-api.git",
-                "reference": "9e9ef75e558a8b296aca32175298eca2da94d62d"
+                "reference": "8dba84c4ea99878c2a726e7f30a2efbf277c9d19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/voceconnect/voce-settings-api/zipball/9e9ef75e558a8b296aca32175298eca2da94d62d",
-                "reference": "9e9ef75e558a8b296aca32175298eca2da94d62d",
+                "url": "https://api.github.com/repos/voceconnect/voce-settings-api/zipball/8dba84c4ea99878c2a726e7f30a2efbf277c9d19",
+                "reference": "8dba84c4ea99878c2a726e7f30a2efbf277c9d19",
                 "shasum": ""
             },
             "type": "library",
@@ -37,7 +37,7 @@
                 }
             ],
             "description": "A simplification of the core WordPress settings API",
-            "time": "2014-08-05 21:43:57"
+            "time": "2014-11-10 18:26:55"
         }
     ],
     "packages-dev": [],
@@ -45,6 +45,7 @@
     "minimum-stability": "stable",
     "stability-flags": [],
     "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": [],
     "platform-dev": []
 }
