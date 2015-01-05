@@ -3,7 +3,7 @@
 Plugin Name: WP CDN Rewrite
 Plugin URI: http://voceconnect.com/
 Description: Rewrites asset URLs to CDN
-Version: 0.1.4
+Version: 0.1.5
 Author: Chris Scott, Michael Pretty, Kevin Langley
 Author URI: http://voceconnect.com/
 */
