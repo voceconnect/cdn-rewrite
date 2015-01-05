@@ -1,10 +1,10 @@
 === WP CDN Rewrite ===
-Contributors: voceplatforms, chrisscott, prettyboymp, kevinlangleyjr  
-Tags: cdn, rewrite  
-Requires at least: 3.3  
-Tested up to: 4.0  
-Stable tag: 0.1.4  
-License: GPLv2 or later  
+Contributors: voceplatforms, chrisscott, prettyboymp, kevinlangleyjr
+Tags: cdn, rewrite
+Requires at least: 3.3
+Tested up to: 4.1
+Stable tag: 0.1.5
+License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Rewrite the root url of assets, css, and js files.
@@ -24,17 +24,20 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 3. Once the plugin has been activated, navigate to the CDN Rewrite settings page and set the appropriate settings.
 
 == Changelog ==
-= 0.1.4 =  
+= 0.1.5 =
+* Testing with WordPress 4.1
+
+= 0.1.4 =
 * Fixing error when file does not exist and fixing _doing_it_wrong call
 
-= 0.1.3 =  
+= 0.1.3 =
 * Adding Grunt build files
 
-= 0.1.2 =  
+= 0.1.2 =
 * Adding Capistrano deploy files
 
-= 0.1.1 =  
+= 0.1.1 =
 * Fixing issue with URLs without a path part.
 
-= 0.1.0 =  
+= 0.1.0 =
 * Initial version.

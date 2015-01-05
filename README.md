@@ -3,8 +3,8 @@ WP CDN Rewrite
 Contributors: voceplatforms, chrisscott, prettyboymp, kevinlangleyjr  
 Tags: cdn, rewrite  
 Requires at least: 3.3  
-Tested up to: 4.0  
-Stable tag: 0.1.4  
+Tested up to: 4.1  
+Stable tag: 0.1.5  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -21,6 +21,9 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 > See [Installing Plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
 ## Changelog
+**0.1.5**  
+* Testing with WordPress 4.1
+
 **0.1.4**  
 * Fixing error when file does not exist and fixing _doing_it_wrong call
 
