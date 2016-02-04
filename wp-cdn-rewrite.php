@@ -124,7 +124,7 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 			$extensions = join('|', array_filter(array($this->file_extensions, $this->css_file_extensions, $this->js_file_extensions)));
 
 			// replace srcset values
-			$srcset_regex = '#<img[^\>]*[^\>\S]+srcset=[\'"]('.quotemeta($root_url).'(?:([^"\'\s,]+)('.$extensions.')\s*(?:\s+\d+[wx])(?:,\s*)?)+)["\'][^>]*?>#';
+			$srcset_regex = '#<img[^\>]*[^\>\S]+srcset=[\'"]('.quotemeta($root_url).'(?:([^"\'\s,]+)('.$this->file_extensions.')\s*(?:\s+\d+[wx])(?:,\s*)?)+)["\'][^>]*?>#';
 			$content = preg_replace_callback( $srcset_regex, array($this, 'srcset_rewrite'), $content);
 
 			// replace the remaining urls
