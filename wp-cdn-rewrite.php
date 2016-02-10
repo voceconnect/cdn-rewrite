@@ -3,8 +3,8 @@
 Plugin Name: WP CDN Rewrite
 Plugin URI: http://voceconnect.com/
 Description: Rewrites asset URLs to CDN
-Version: 0.1.5
-Author: Chris Scott, Michael Pretty, Kevin Langley
+Version: 0.2.0
+Author: Chris Scott, Michael Pretty, Kevin Langley, Sean McCafferty
 Author URI: http://voceconnect.com/
 */
 
@@ -122,6 +122,12 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 				$xml_end = '<';
 			}
 			$extensions = join('|', array_filter(array($this->file_extensions, $this->css_file_extensions, $this->js_file_extensions)));
+
+			// replace srcset values
+			$srcset_regex = '#<img[^\>]*[^\>\S]+srcset=[\'"]('.quotemeta($root_url).'(?:([^"\'\s,]+)('.$this->file_extensions.')\s*(?:\s+\d+[wx])(?:,\s*)?)+)["\'][^>]*?>#';
+			$content = preg_replace_callback( $srcset_regex, array($this, 'srcset_rewrite'), $content);
+
+			// replace the remaining urls
 			$regex = '#(?<=[(\"\''.$xml_begin.'])'.quotemeta($root_url).'(?:(/[^\"\''.$xml_end.')]+\.('.$extensions.')))#';
 			$content = preg_replace_callback($regex, array($this, 'url_rewrite'), $content);
 
@@ -163,15 +169,7 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 		 * @return string
 		 */
 		public function url_rewrite($match) {
-			global $blog_id;
-			$path = $match[1];
-			//if is subfolder install and isn't root blog and path starts with site_url and isnt uploads dir
-			if(is_multisite() && !is_subdomain_install() && $blog_id !== 1) {
-				$bloginfo = $this->get_this_blog_details();
-				if((0 === strpos($path, $bloginfo->path)) && (0 !== strpos($path, $bloginfo->path.'files/'))) {
-					$path = '/'.substr($path, strlen($bloginfo->path));
-				}
-			}
+			$path = $this->get_rewrite_path( $match[1] );
 			if('/' !== $this->css_cdn_root_url && preg_match("/^.*\.(".$this->css_file_extensions.")$/i", $path) ) {
 				return $this->css_cdn_root_url . $path;
 			}
@@ -179,6 +177,58 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 				return $this->js_cdn_root_url . $path;
 			}
 			return $this->cdn_root_url . $path;
+		}
+
+		/**
+		 * Callback for srcset preg_replace_callback, Returns image tag with updated srcset value
+		 * @param type $match
+		 * @return type
+		 */
+		public function srcset_rewrite( $match ) {
+			$root_url = $this->get_site_root_url();
+
+			$image_tag           = empty( $match[0] ) ? false : $match[0];
+			$srcset_field        = empty( $match[1] ) ? false : $match[1];
+			if ( empty( $srcset_field ) ) {
+				return $image_tag;
+			}
+
+			$srcset_images       = array();
+			$srcset_images_count = preg_match_all( '#'.quotemeta( $root_url ).'(?:([^"\'\s,]+)\s*(?:\s+\d+[wx])(?:,\s*)?)#', $image_tag, $srcset_images );
+			$srcset_images_sizes = empty( $srcset_images[0] ) ? false : $srcset_images[0];
+			$srcset_images_paths = empty( $srcset_images[1] ) ? false : $srcset_images[1];
+
+			if ( empty( $srcset_images_paths ) ) {
+				return $image_tag;
+			}
+
+			foreach( $srcset_images_paths as $key => $original_path ) {
+				$path     = $this->get_rewrite_path( $original_path );
+				$cdn_path = $this->cdn_root_url . $path;
+				$srcset_images[0][ $key ] = str_replace( $root_url . $original_path, $cdn_path, $srcset_images[0][ $key ] );
+			}
+
+			$image_tag = str_replace( $srcset_field, implode( ' ', $srcset_images[0] ), $image_tag );
+
+			return $image_tag;
+		}
+
+		/**
+		 * Helper function to get the path depending on the site structure
+		 * @global type $blog_id
+		 * @param string $path
+		 * @return string
+		 */
+		private function get_rewrite_path( $path ) {
+			global $blog_id;
+			//if is subfolder install and isn't root blog and path starts with site_url and isnt uploads dir
+			if(is_multisite() && !is_subdomain_install() && $blog_id !== 1) {
+				$bloginfo = $this->get_this_blog_details();
+				if((0 === strpos($path, $bloginfo->path)) && (0 !== strpos($path, $bloginfo->path.'files/'))) {
+					$path = '/'.substr($path, strlen($bloginfo->path));
+				}
+			}
+			return $path;
 		}
 
 	}
