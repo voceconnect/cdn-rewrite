@@ -1,23 +1,24 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "96e12d52f1b75a6acbe5d7de047a843b",
+    "content-hash": "9b2a58eecb00d579d62acf9e3f853a37",
     "packages": [
         {
             "name": "voceconnect/voce-settings-api",
-            "version": "0.5.0",
+            "version": "0.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/voceconnect/voce-settings-api.git",
-                "reference": "8dba84c4ea99878c2a726e7f30a2efbf277c9d19"
+                "reference": "b66951c2f0edf93be6a6155436d80017a8f8f9b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/voceconnect/voce-settings-api/zipball/8dba84c4ea99878c2a726e7f30a2efbf277c9d19",
-                "reference": "8dba84c4ea99878c2a726e7f30a2efbf277c9d19",
+                "url": "https://api.github.com/repos/voceconnect/voce-settings-api/zipball/b66951c2f0edf93be6a6155436d80017a8f8f9b0",
+                "reference": "b66951c2f0edf93be6a6155436d80017a8f8f9b0",
                 "shasum": ""
             },
             "type": "library",
@@ -37,7 +38,7 @@
                 }
             ],
             "description": "A simplification of the core WordPress settings API",
-            "time": "2014-11-10 18:26:55"
+            "time": "2015-06-15 22:00:11"
         }
     ],
     "packages-dev": [],
