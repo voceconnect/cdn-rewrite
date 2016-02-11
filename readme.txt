@@ -25,6 +25,9 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 
 == Changelog ==
 = 0.2.1 =
+* Updating version numbers and change logs
+
+= 0.2.0 =
 * Testing WordPress 4.4
 * Adding srcset support
 
