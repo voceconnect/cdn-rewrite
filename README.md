@@ -3,8 +3,8 @@ WP CDN Rewrite
 Contributors: voceplatforms, chrisscott, prettyboymp, kevinlangleyjr  
 Tags: cdn, rewrite  
 Requires at least: 3.3  
-Tested up to: 4.1  
-Stable tag: 0.1.5  
+Tested up to: 4.4  
+Stable tag: 0.2.1  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -21,6 +21,10 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 > See [Installing Plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
 ## Changelog
+**0.2.1**  
+* Testing WordPress 4.4  
+* Adding srcset support  
+
 **0.1.5**  
 * Testing with WordPress 4.1
 
