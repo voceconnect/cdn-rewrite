@@ -142,10 +142,19 @@ if( !class_exists( 'CDN_Rewrite' ) ){
 		public function get_site_root_url() {
 			if(is_multisite() && !is_subdomain_install()) {
 				$root_blog = get_blog_details(1);
-				$root_url = $root_blog->siteurl;
+				$root_site_url = $root_blog->siteurl;
 			} else {
-				$root_url = site_url();
+				$root_site_url = site_url();
 			}
+
+			$parsed_root_site_url = parse_url($root_site_url);
+
+			if (array_key_exists('scheme', $parsed_root_site_url)) {
+				$root_url_scheme = $parsed_root_site_url['scheme'] . '://';
+			} else {
+				$root_url_scheme = '//';
+			}
+			$root_url = $root_url_scheme . $parsed_root_site_url['host'];
 			return $root_url;
 		}
 
