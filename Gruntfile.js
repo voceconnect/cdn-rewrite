@@ -15,6 +15,7 @@ module.exports = function(grunt) {
   });
 
   //load the tasks
-  grunt.loadNpmTasks('grunt-voce-plugins');
+  grunt.loadNpmTasks('grunt-composer');
+  grunt.loadNpmTasks('grunt-peon-build');
 
 };

@@ -21,6 +21,10 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 > See [Installing Plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
 ## Changelog
+
+**0.3.0**  
+* Abstracting logic from wp-cdn-rewrite.php in order for the `class_exists` check to work as intended when APC cache is enabled
+
 **0.2.1**  
 * Updating version numbers and change logs
 

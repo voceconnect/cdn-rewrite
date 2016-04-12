@@ -1,7 +1,7 @@
 {
     "name": "cdn-rewrite",
     "description": "Allows you to rewrite the root url of assets, css, and js files.",
-    "version": "0.1.5",
+    "version": "0.3.0",
     "repository": {
         "type": "git",
         "url": "git@github.com:voceconnect/cdn-rewrite.git"
@@ -10,6 +10,8 @@
         "url": "https://github.com/voceconnect/cdn-rewrite/issues"
     },
     "devDependencies": {
-      "grunt-voce-plugins": "latest"
+      "grunt": "0.4.5",
+      "grunt-peon-build": "~0.1",
+      "grunt-composer": "~0.4"
     }
 }
