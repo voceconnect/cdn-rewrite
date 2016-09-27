@@ -3,8 +3,8 @@ WP CDN Rewrite
 Contributors: voceplatforms, chrisscott, prettyboymp, kevinlangleyjr  
 Tags: cdn, rewrite  
 Requires at least: 3.3  
-Tested up to: 4.4  
-Stable tag: 0.2.1  
+Tested up to: 4.5  
+Stable tag: 0.4.0  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -21,6 +21,9 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 > See [Installing Plugins](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 
 ## Changelog
+
+**0.4.0**
+* Fixing bug with relative protocol and explicitly checking scheme
 
 **0.3.0**  
 * Abstracting logic from wp-cdn-rewrite.php in order for the `class_exists` check to work as intended when APC cache is enabled
