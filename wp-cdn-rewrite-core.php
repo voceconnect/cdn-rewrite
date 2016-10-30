@@ -9,6 +9,7 @@ class CDN_Rewrite {
 
 	private $cdn_root_url;
 	private $file_extensions;
+	private $numofcdns;
 
 	private $css_file_extensions;
 	private $css_cdn_root_url;
@@ -21,6 +22,14 @@ class CDN_Rewrite {
 	public function __construct() {
 		$this->cdn_root_url = $this->css_cdn_root_url = $this->js_cdn_root_url = untrailingslashit($this->get_setting('root_url'));
 
+		if (($numofcdns = intval(trim($this->get_setting('numofcdns')))) > 1) {
+			$this->numofcdns = $numofcdns;
+		}
+		else
+		{
+			$this->numofcdns = false;
+		}
+		
 		if ($css_url = trim($this->get_setting('css_root_url'))) {
 			$this->css_cdn_root_url = untrailingslashit($css_url);
 		}
@@ -81,7 +90,8 @@ class CDN_Rewrite {
 	public function add_options_page() {
 		Voce_Settings_API::GetInstance()->add_page('CDN Rewrite', 'CDN Rewrite', self::OPTION_GENERAL, 'manage_options', '', 'options-general.php' )
 			->add_group( 'CDN Rewrite Settings', 'cdn_general' )
-				->add_setting( 'CDN Root URL (required)', 'root_url', array( 'description' => 'The base URL of the CDN.' ) )->group
+				->add_setting( 'CDN Root URL (required)', 'root_url', array( 'description' => 'The base URL of the CDN. Add ## where the CDN numbers come in (ie. cdn##.yoursite.com => cdn1.yoursite.com, cdn2.yoursite.com... etc)' ) )->group
+				->add_setting( 'Number of CDNs', 'numofcdns', array( 'description' => 'Number of CDN aliases (cdn1,cdn2,cdn3..) to spread links on.' ) )->group
 				->add_setting( 'File Extensions (required)', 'file_extensions' )->group
 				->add_setting( 'CDN Root URL for CSS Files (optional)', 'css_root_url', array( 'description' => 'The base URL of the CDN for CSS Files.' ) )->group
 				->add_setting( 'File Extensions for CSS Files (optional)', 'css_file_extensions' )->group
@@ -173,7 +183,19 @@ class CDN_Rewrite {
 		if('/' !== $this->js_cdn_root_url && preg_match("/^.*\.(".$this->js_file_extensions.")$/i", $path) ) {
 			return $this->js_cdn_root_url . $path;
 		}
-		return $this->cdn_root_url . $path;
+
+		if ($this->numofcdns)
+		{
+			if(!function_exists('murmurhash'))
+			{
+				require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'murmurhash.php' );
+			}
+			
+			$cdn_num = (murmurhash($path) % $this->numofcdns) + 1;
+			return str_replace('##', $cdn_num, $this->cdn_root_url) . $path;
+		}
+		else
+			return str_replace('##','',$this->cdn_root_url) . $path;
 	}
 
 	/**
@@ -199,9 +221,23 @@ class CDN_Rewrite {
 			return $image_tag;
 		}
 
-		foreach( $srcset_images_paths as $key => $original_path ) {
-			$path     = $this->get_rewrite_path( $original_path );
-			$cdn_path = $this->cdn_root_url . $path;
+		foreach( $srcset_images_paths as $key => $original_path )
+		{
+			$path = $this->get_rewrite_path( $original_path );
+
+			if ($this->numofcdns)
+			{
+				if(!function_exists('murmurhash'))
+				{
+					require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'murmurhash.php' );
+				}
+				
+				$cdn_num = (murmurhash($path) % $this->numofcdns) + 1;
+				$cdn_path = str_replace('##', $cdn_num, $this->cdn_root_url) . $path;
+			}
+			else
+				$cdn_path = str_replace('##','',$this->cdn_root_url) . $path;
+			
 			$srcset_images[0][ $key ] = str_replace( $root_url . $original_path, $cdn_path, $srcset_images[0][ $key ] );
 		}
 
@@ -277,3 +313,4 @@ class CDN_VersionAssets {
 	}
 }
 add_action('init', array(new CDN_VersionAssets(), 'initialize'));
+
