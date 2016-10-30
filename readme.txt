@@ -25,6 +25,9 @@ If using [Composer](http://getcomposer.org) for dependency management, you can a
 
 == Changelog ==
 
+= 0.5.0 =
+* Ability to spread files over multiple CDN aliases (cdn1, cdn2, cdn3... etc).
+
 = 0.4.0 =
 * Fixing bug with relative protocol and explicitly checking scheme
 
